@@ -1,0 +1,127 @@
+body { 
+	font-family: "Futura"; 
+    background-color: white; 
+    margin : 0; 
+    padding : 0;
+    width: 100%;
+}
+
+/*tengli*/
+svg { border: solid black 1px; }
+
+.div { text-align: center; }
+
+
+/*svg { border: solid black 1px; }*/
+.axis path { fill: none; stroke: black; stroke-width : 1;}
+.axis line { stroke: black; }
+.center { text-align: center; }
+path {
+    stroke-width: 3;
+    fill: none;
+}
+.span {
+	color: purple;
+	font-size: 25px;
+}
+/*#firstViz{
+    width: 100%;
+    height: 100%;
+}*/
+#map{
+    width: 100%;
+    height: 100%;
+}
+/*#map { 
+    position : relative; 
+    top : 5%; 
+    margin-bottom: 0%; 
+    margin-left: 5%;
+    margin-right: 5%;
+    width : 90%;
+    height : 70%;
+}*/
+#citation{
+    margin-left: 5%;
+}
+#aqiRange{
+    width: 50%;
+    margin-top: 1%;
+    margin-left: 25%;
+    -webkit-appearance: none;
+    background-color: #012C5F;
+    opacity:.8;
+    height:20px;
+}
+
+/*city info */
+#secondViz{
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+    /*display: inline-block;*/
+}
+.secondVizChildDiv{
+    /*display: inline-block;*/
+}
+
+#leftHalf{
+    width: 50%;
+    height: 100%;
+    float: left;
+}
+#donutChartDiv{
+    width: 100%;
+/*    height: 100%;*/
+    height: 400px;
+}
+#donutChartSvg{
+    width: 100%;
+    height: 100%;
+}
+     
+#donutChartSvg path.slice{
+    stroke-width:2px;
+}
+
+#donutChartSvg polyline{
+    opacity: .3;
+    stroke: black;
+    stroke-width: 2px;
+    fill: none;
+}
+#cityNameInDonutChart{
+    font-size: 25px;
+}
+#donutCharTitle, #monthHighVSLowTitle{
+    text-align: center;
+}
+#rightHalf{
+    width: 50%;
+    height: 100%;
+    float: left;
+    display: inline-block;
+}
+.bar {
+    fill: steelblue;
+}
+.highBar{
+    fill:red;
+}
+.lowBar{
+    fill:green;
+}
+#monthlyHighVsLowBarChartDiv{
+    width: 100%;
+    /*height: 100%;*/
+    height: 400px;
+}
+#monthlyHighVsLowBarChartSvg{
+    margin-top: 5%;
+    margin-left: 3%;
+}
+/*style of second visualization*/
+#comparison{
+    width: 100%;
+    height: 90%;
+}

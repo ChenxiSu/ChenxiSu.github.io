@@ -1,0 +1,98 @@
+<html>
+<head>
+	<meta charset = 'utf-8'/>
+    <meta name = 'viewport' content = 'initial-scale=1,maximum-scale=1,user-scalable=no'/>
+	<script src = "https://d3js.org/d3.v3.min.js"></script>
+	<script src = "http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src = 'https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js'></script>
+	<!-- <script src= "javascript/jquery-1.12.1.min.js"></script> -->
+	<link href = 'https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel = 'stylesheet'/>
+	<link rel = 'stylesheet' type = "text/css" href = "css/styles.css" />
+	<link rel= "stylesheet" href="css/bootstrap.min.css">
+    <link rel= "stylesheet" href="css/bootstrap-theme.min.css">
+    <script src="javascript/bootstrap.min.js"></script>
+
+	<title>Haze in China</title>
+	
+</head>
+<body>
+	<!-- first visualization -->
+	<div id = "map">
+		
+		<h2 class = "center">Visualizing Air Quality in China Across Cities and Time Intervals</h2>
+		<h3 class = "center">Average Air Quality Index (AQI) of Major Cities in 2015</h3>
+		<!-- <div id = "map"></div> -->
+		<!-- citation -->
+		<!-- <div id="citation">Location icons made by <a href="http://www.flaticon.com/authors/daniel-bruce" title="Daniel Bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div> -->
+		<!-- scroller Bar -->
+		<div>
+			<input type="range" id="aqiRange" min="0" max="400" value="0" step="1">
+		</div>
+
+		<div id = "rectPlot" class = "center"></div>
+
+	</div>
+
+	<!-- second visualization: more information about a specific city-->
+	<!-- <div id="secondViz" class= "row">
+
+		<div  class="col-md-6 .col-xs-12 secondVizChildDiv">
+			<h2 id="donutCharTitle">AQI Breakdown (# of Days in 2015)</h2>
+			<div id="donutChartDiv"></div>
+		</div>
+
+		<div  class="col-md-6 .col-xs-12 secondVizChildDiv">
+			<h2 id="monthHighVSLowTitle">Highest and Lowest AQI by Month (2015)</h2>
+			<div id="monthlyHighVsLowBarChartDiv"></div>
+		</div>
+		
+	</div> -->
+
+	<!-- third visualization: more information about overall data -->
+	<!-- <div id="thirdViz">
+		<h2 class = "center">Top 5, Median 5, and Bottom 5 Cities for Monthly Average AQI</h2>
+		<h4 class = "center">Peak effects have greater significance in January and December the higher the AQI</h4>
+		<div id = "menu" class = "center"></div>
+		<div id = "check" class = "center">
+			<input id = "low" type = "checkbox">Low</input>
+			<input id = "middle" type = "checkbox">Middle</input>
+			<input id = "high" type = "checkbox">High</input>
+		</div>
+
+
+		<div id = "compareMonths" class = "center"></div><br><br>
+		<h2 class = "center">AQI Breakdown Across Days of the Week</h2>
+		<div id = "check2" class = "center">
+			<input id = "low2" type = "checkbox">Low</input>
+			<input id = "middle2" type = "checkbox">Middle</input>
+			<input id = "high2" type = "checkbox">High</input>
+		</div>
+
+		<div id = "compareDays" class = "center"></div><br><br>
+
+		<h2 class = "center">AQI vs. Time of Day for Select Cities</h2>
+
+		<div id = "check3" class = "center">
+			<input id = "Beijing" type = "checkbox">Beijing</input>
+			<input id = "Shenyang" type = "checkbox">Shenyang</input>
+			<input id = "Chengdu" type = "checkbox">Chengdu</input>
+			<input id = "Guangzhou" type = "checkbox">Guangzhou</input>
+			<input id = "Shanghai" type = "checkbox">Shanghai</input>
+		</div>
+		<div id = "compareTimes" class = "center"></div>
+
+	</div>
+
+
+	<div id = "comparisonViz" class = "center"><br><br>
+		<h2 class = "center">Chinese vs. U.S. Pollution Data for Chinese Cities</h2>
+		<div id = "menuOf5Cites" class = "center"></div>
+		<div id = "comparison" class = "center"></div>
+	</div> -->
+
+	<script src = "javascript/mapAndRectsCreation.js"></script>
+	<script src = "javascript/overallCityInfo.js"></script>
+	<script src = "javascript/comparisonCNandUS.js"></script>
+	
+</body>
+</html>
