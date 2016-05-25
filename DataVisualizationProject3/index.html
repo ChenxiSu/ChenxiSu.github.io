@@ -1,0 +1,111 @@
+<html>
+<head>
+	<meta charset = 'utf-8'/>
+    <meta name = 'viewport' content = 'initial-scale=1,maximum-scale=1,user-scalable=no'/>
+	<script src = "https://d3js.org/d3.v3.min.js"></script>
+	<script src = "http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+	<script src = 'https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.js'></script>
+	<link href = 'https://api.tiles.mapbox.com/mapbox.js/v2.1.9/mapbox.css' rel = 'stylesheet'/>
+	<link rel = 'stylesheet' type = "text/css" href = "css/styles.css" />
+	<link rel= "stylesheet" href="css/bootstrap.min.css">
+    <link rel= "stylesheet" href="css/bootstrap-theme.min.css">
+    <script src="javascript/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/L.Control.Sidebar.css" /> <!--added -->
+
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+	<script src="javascript/L.Control.Sidebar.js"></script>
+	<title>Haze in China</title>
+</head>
+
+<body>
+    <div id="sidebar-left">
+       	<!-- second visualization: more information about a specific city-->
+		<div id="secondViz" class= "row">
+			<!-- id="leftHalf" id="rightHalf"-->
+			<div  class=".col-xs-12 secondVizChildDiv">
+				<h2 id="donutCharTitle">AQI Breakdown (# of Days in 2015)</h2>
+				<div id="donutChartDiv"></div>
+			</div>
+		</div><br>
+		<div id="secondVizTwo" class= "row">
+			<div  class=".col-xs-12 secondVizTwoChildDiv">
+				<h2 id="monthHighVSLowTitle">Highest and Lowest AQI by Month (2015)</h2>
+				<div id="monthlyHighVsLowBarChartDiv"></div>
+			</div>
+		</div>	
+ 
+    </div>
+
+    <div id="sidebar-right">
+
+	<!-- third visualization: more information about overall data -->
+	<div id="thirdViz">
+
+		<h1 class="center">5 Cities from Segmented Groupings for Average AQI</h1>
+		<div class="col-s-12">
+			<h1><span id ="top5">Top 5:</span> Baoding, Dezhou, Hengshui, Xingtai, and Zhenzhou</h1>
+			<h1><span id ="med5">Middle 5:</span> Hangzhou, Dalian, Ma’anshan, Jiaozhou, and Changsha</h1>
+			<h1><span id ="bot5">Bottom 5:</span> Quangzhou, Xiamen, Yuxi, Haikou, and Sanya</h1><br><br>
+		</div>
+
+		<h2 class = "center">Segmented Cities for Monthly Average AQI</h2>
+		<h4 class = "center">Peak effects have greater significance in January and December the higher the AQI</h4>
+		<div id = "check" class = "center">
+			<input id = "low" type = "checkbox">Low</input>
+			<input id = "middle" type = "checkbox">Middle</input>
+			<input id = "high" type = "checkbox">High</input>
+		</div>
+
+
+		<div id = "compareMonths" class = "center"></div><br><br>
+
+		<h2 class = "center">AQI Breakdown Across Days of the Week</h2>
+		<h4 class = "center">One may expect changes in AQI due to cars in the work week however there are virtually no differing effects between days of the week and pollution</h4>
+
+		<div id = "check2" class = "center">
+			<input id = "low2" type = "checkbox">Low</input>
+			<input id = "middle2" type = "checkbox">Middle</input>
+			<input id = "high2" type = "checkbox">High</input>
+		</div>
+
+		<div id = "compareDays" class = "center"></div><br><br>
+
+		<h2 class = "center">AQI vs. Time of Day for Select Cities</h2>
+		<h4 class = "center">Although there are no differences between AQI on different days, there are differences within days</h4>
+
+		<div id = "check3" class = "center">
+			<input id = "Beijing" type = "checkbox"></input>
+			 <label id ="BeijingName">Beijing</label>
+			<input id = "Shenyang" type = "checkbox"></input>
+			 <label id ="ShenyangName">Shenyang</label>
+			<input id = "Chengdu" type = "checkbox"></input>
+			 <label id ="ChengduName">Chengdu</label>
+			<input id = "Guangzhou" type = "checkbox"></input>
+			 <label id ="GuangzhouName">Guangzhou</label>
+			<input id = "Shanghai" type = "checkbox"></input>
+			 <label id ="ShanghaiName">Shanghai</label>
+		</div>
+		<div id = "compareTimes" class = "center"></div>
+
+	</div>
+
+    </div>
+
+	<!-- first visualization -->
+	<div id = "firstViz">
+		<div id = "map"></div>
+		<!-- citation -->
+		<!-- <div id="citation">Location icons made by <a href="http://www.flaticon.com/authors/daniel-bruce" title="Daniel Bruce">Daniel Bruce</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div> -->
+	</div>
+
+
+	<script src = "javascript/mapAndRectsCreation.js"></script>
+	<script src = "javascript/overallCityInfo.js"></script>
+	<script src = "javascript/comparisonCNandUS.js"></script>
+	
+</body>
+
+</html>
