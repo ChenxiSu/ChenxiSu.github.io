@@ -126,16 +126,24 @@ d3.csv("data/cities.csv", function (error, data) {
 
 		info3.addTo(map);
 
-	    // Disable dragging when user's cursor enters the element
-	    info3.getContainer().addEventListener('mouseover', function () {
-	        map.dragging.disable();
-	    });
+	    // // Disable dragging when user's cursor enters the element
+	    // info3.getContainer().addEventListener('mouseover', function () {
+	    //     map.dragging.disable();
+	    // });
 
-	    // Re-enable dragging when user's cursor leaves the element
-	    info3.getContainer().addEventListener('mouseout', function () {
-	        map.dragging.enable();
-	    });
+	    // // Re-enable dragging when user's cursor leaves the element
+	    // info3.getContainer().addEventListener('mouseout', function () {
+	    //     map.dragging.enable();
+	    // });
 
+
+		var info3 = L.DomUtil.get('info3');
+		if (!L.Browser.touch) {
+		    L.DomEvent.disableClickPropagation(info3);
+		    L.DomEvent.on(info3, 'mousewheel', L.DomEvent.stopPropagation);
+		} else {
+		    L.DomEvent.on(info3, 'click', L.DomEvent.stopPropagation);
+		}
 
  		var info2 = L.control();
 
