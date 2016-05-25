@@ -1,20 +1,26 @@
 //initialize the map
 L.mapbox.accessToken = 'pk.eyJ1IjoiY2hlbnhpMTAyMSIsImEiOiJjaW81czVsb3UwMjAxdzNrandidHF3eTl3In0.KscIyN8_aLsmYzW3LSHLfA';
 
+//var map = L.mapbox.map('map', 'mapbox.streets').setView([34, 116], 4);
+
 var southWest = L.latLng(3.51, 73.33),
     northEast = L.latLng(55.33,136),
     bounds = L.latLngBounds(southWest, northEast);
 
 var map = L.mapbox.map('map', 'mapbox.streets',{
-	maxBounds: bounds,
-    maxZoom: 10,
+	// maxBounds: bounds,
+    maxZoom: 20,
     minZoom: 4
 }).setView([34, 116], 8);
 
 map.fitBounds(bounds);
 map.dragging.enabled();
 
+
+
+
 var svg = d3.select("#blank").append("svg").attr("height", height).attr("width", width);
+
 
 var height = 500;
 var width = 900;
@@ -22,7 +28,7 @@ var padding = 50;
 
 var months, AQI, cities;
 var monthInfo, AQIInfo, cityInfo;
-
+var city_aqi={};
 var xScale;
 var yScale;
 
@@ -48,6 +54,24 @@ var cityIcon = L.Icon.extend({
     }
 });
 
+// implementing the left slider and right slider
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: 'Map data &copy; OpenStreetMap contributors'
+}).addTo(map);
+
+var leftSidebar = L.control.sidebar('sidebar-left', {
+    position: 'left'
+});
+map.addControl(leftSidebar);
+
+var rightSidebar = L.control.sidebar('sidebar-right', {
+    position: 'right'
+});
+map.addControl(rightSidebar);
+
+
+// reading data from files
 d3.csv("data/cities.csv", function (error, data) {
 	cityInfo = data;
 	cities = cityInfo.map(function (info) {
@@ -65,14 +89,71 @@ d3.csv("data/cities.csv", function (error, data) {
 	
 		AQIInfo = mapData;
 		AQI = AQIInfo.map(function (info) {	
+			city_aqi[""+info["City"]]=Number(info["Average_AQI"]);
 			return {
 				site: info["City"],
 				year: Number(info["Year"]),
 				AQI: Number(info["Average_AQI"]),
 				x: Number(info["x"]),
 				y: Number(info["y"]),
+				rank: Number(info["Rank"])
 			};
 		});
+
+
+ 		var info3 = L.control();
+
+		info3.onAdd = function (map) {
+		    this._div = L.DomUtil.create('div', 'info3'); // create a div with a class "info"
+		    this.update();
+		    return this._div;
+		};
+
+		// method that we will use to update the control based on feature properties passed
+		info3.update = function (props) {
+		    this._div.innerHTML =
+						'<h1 class = "center">Visualizing Air Quality in China Across Cities and Time Intervals in 2015</h1>'+
+						'<h2 class = "center">Air Quality Index Filter: <span id="filter_value">0</span></h2>'+
+						'<div id="sliderBoard">'+
+						'<svg id="sliderBoardSvg" width="70" height = "50" transform="translate(0,-20)">'+
+						'<rect width="20" height="10" style="fill:#91DC5A"; /><text x="22" y="10" fill="#91DC5A">0~50</text>'+
+						'<rect width="20" height="10" y="15" style="fill:#FFDA44"; /><text x="22" y="25" fill="#FFDA44">51~100</text>'+
+						'<rect width="20" height="10" y="30" style="fill:#FFA500"; /><text x="22" y="40" fill="#FFA500">101~150</text>'+
+						'</svg>'+
+						'<input type="range" id="aqiRange" min="0" max="150" value="0" step="1">'
+		};
+		
+
+		info3.addTo(map);
+
+	    // Disable dragging when user's cursor enters the element
+	    info3.getContainer().addEventListener('mouseover', function () {
+	        map.dragging.disable();
+	    });
+
+	    // Re-enable dragging when user's cursor leaves the element
+	    info3.getContainer().addEventListener('mouseout', function () {
+	        map.dragging.enable();
+	    });
+
+
+ 		var info2 = L.control();
+
+		info2.onAdd = function (map) {
+		    this._div = L.DomUtil.create('div', 'info2'); // create a div with a class "info"
+		    this.update();
+		    return this._div;
+		};
+
+		// method that we will use to update the control based on feature properties passed
+		info2.update = function (props) {
+		    this._div.innerHTML =
+						'<button type="button" class="btn btn-success" onclick="rightSidebar.toggle()">Additional Findings</button>'+
+						'</div>';
+		};
+		
+
+		info2.addTo(map);
 
 		// add marker for each city to the map
 		setTheMapWithIcon(0);
@@ -82,6 +163,7 @@ d3.csv("data/cities.csv", function (error, data) {
 
 		aqiScrollerBar.on("input", function (){
 			var curAQI = this.value;
+			document.getElementById("filter_value").innerText = curAQI;
 			updateMapIcon(curAQI);
 		});
 
@@ -97,7 +179,7 @@ d3.csv("data/cities.csv", function (error, data) {
 		d3.csv("data/AllCities_English_CSV.csv", function (error, data) {
 			if(error) console.log(error);
 			curCityName = data[0].City;
-
+			console.log(data);
 			data.forEach( function (d){
 				if(d.City !== curCityName){
 					var curArray = curCityValuesForYear;	
@@ -162,17 +244,20 @@ function setTheMapWithIcon(aqiValue){
 			d.LatLng = new L.LatLng(d.x, d.y);
 			var index = getIconIndex(d.AQI);
 			var curIcon = setIconByIndex(index);
-			var marker = new L.marker(d.LatLng, {icon: curIcon}).bindPopup(d.site);
+			var marker = new L.marker(d.LatLng, {icon: curIcon}).bindPopup(d.site+", "+"Rank: "+d.rank+"/187");
 			marker.addTo(map);
 
 			marker.on("click", function () {
-				var cityName = this._popup.getContent();
+				leftSidebar.show();
+				var tempName = this._popup.getContent();
+				var cityName = tempName.split(",")[0].trim();
 				//get the data of the whole year by city name
 				var cityDailyAQI = cityDailyAQIObj[""+cityName];
 				var cityMonthlyHighVsLowArray = cityHighestVsLowestVal[""+cityName];
 				var percentageOfDaysInDifferentLevels = getPercentageOfDaysInDifferentLevels(cityDailyAQI);
 				//now draw the donut chart
-				drawDonutChart(percentageOfDaysInDifferentLevels, cityName);
+				var average_AQI = (city_aqi[""+cityName]).toFixed(1);
+				drawDonutChart(percentageOfDaysInDifferentLevels, cityName, average_AQI);
 				console.log(cityMonthlyHighVsLowArray);
 				drawBarChart(cityMonthlyHighVsLowArray, cityName);
 
@@ -184,9 +269,12 @@ function setTheMapWithIcon(aqiValue){
 function drawBarChart(inputDataArray, cityName){
 
 	d3.select("#monthlyHighVsLowBarChartSvg").remove();
-	var width = document.getElementById("monthlyHighVsLowBarChartDiv").getBoundingClientRect().width,
-        height = document.getElementById("monthlyHighVsLowBarChartDiv").getBoundingClientRect().height*0.8;
-    var paddingWidth = 0.05* width;
+	var svgWidth = document.getElementById("monthlyHighVsLowBarChartDiv").getBoundingClientRect().width,
+		svgHeight = document.getElementById("monthlyHighVsLowBarChartDiv").getBoundingClientRect().height;
+
+	var width = 0.85*svgWidth,
+        height = 0.8*svgHeight;
+    var paddingWidth = 0.13* width;
     var paddingHeight = 0.1* height;
     var xValueArray=[];
 
@@ -194,7 +282,7 @@ function drawBarChart(inputDataArray, cityName){
     	xValueArray.push(i);
     }
 
-    var x = d3.scale.ordinal().domain(xValueArray).rangeRoundBands([0, width-2*paddingWidth], .1);
+    var x = d3.scale.ordinal().domain(xValueArray).rangeRoundBands([0, width], .1);
     var y = d3.scale.linear().domain([0,600]).range([height-2*paddingHeight, 0]);
 
     var xAxis = d3.svg.axis()
@@ -207,36 +295,35 @@ function drawBarChart(inputDataArray, cityName){
     .ticks(10);
 
     var svg = d3.select("#monthlyHighVsLowBarChartDiv").append("svg").attr("id","monthlyHighVsLowBarChartSvg")
-    .attr("width", width)
-    .attr("height", height)
+  	.attr('viewBox','0 0 '+Math.min(svgWidth,svgHeight) +' '+Math.min(svgWidth,svgHeight) )
+    .attr('preserveAspectRatio','xMinYMin')
   	.append("g");
+  	//.attr("transform", "translate(" + Math.min(width,height) / 2 + "," + Math.min(width,height) / 2 + ")");
 
+  	//draw x-axis
     svg.append("g")
       .attr("class", "x axis")
-      .attr("transform", "translate("+2*paddingWidth+","+ (height-3*paddingHeight/2) +")")
+      .attr("transform", "translate("+paddingWidth+","+ (height-paddingHeight) +")")
+      //.attr("transform", "translate(0,"+ (height-3*paddingHeight/2) +")")
       .call(xAxis);
 
     d3.selectAll("#monthlyHighVsLowBarChartDiv g .axis .tick").remove();
     //add the months
     
-    var step = (width-2*paddingWidth)/12; 
-    var start = 2*paddingWidth+step/4;
+    var step = (width)/12; 
+    var start = paddingWidth+step/4;
     var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct","Nov" ,"Dec"];
     months.forEach(function (d){
-    	svg.append("text").attr("x", start+step*months.indexOf(d) ).attr("y", height-paddingHeight)
+    	svg.append("text").attr("x", start+step*months.indexOf(d) ).attr("y", height-paddingHeight/2)
     	.text(d);
     })
 
 
     svg.append("g")
       .attr("class", "y axis")
-      .attr("transform", "translate("+2*paddingWidth+","+paddingHeight/2+")")
+      .attr("transform", "translate("+paddingWidth+","+paddingHeight+")")
       .call(yAxis);
-    // .append("text")
-    //   .attr("y", -paddingHeight/1.5)
-    //   .attr("dy", ".71em")
-    //   .style("text-anchor", "end")
-    //   .text("AQI");
+
     var timer = -1;
     svg.selectAll(".bar")
       .data(inputDataArray)
@@ -244,19 +331,28 @@ function drawBarChart(inputDataArray, cityName){
       .attr("class", function (d){ return inputDataArray.indexOf(d)%2 == 0 ? "highBar" : "lowBar";})
       .attr("x", function(d) { 
       	timer++;
-      	return x(timer);
+      	return x(timer)-paddingWidth;
       })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d); })
+      .attr("y", function(d) { return y(d)+paddingHeight; })
       .attr("height", function(d) {  	return height-2*paddingHeight - y(d); })
-      .attr("transform", "translate("+2*paddingWidth+","+paddingHeight/2+")");//+3*paddingHeight/2+
+      .attr("transform", "translate("+2*paddingWidth+","+0+")");//+3*paddingHeight/2+
 }
 
 
-function drawDonutChart(inputDataArray, cityName){
-	console.log(inputDataArray);
+
+function drawDonutChart(inputDataArray, cityName, aqi){
+
 	d3.selectAll("#donutChartDiv svg").remove();
-	var donutChartSvg = d3.select("#donutChartDiv").append("svg").attr("id","donutChartSvg").append("g");
+	var width = document.getElementById("donutChartDiv").getBoundingClientRect().width;
+	var height = document.getElementById("donutChartDiv").getBoundingClientRect().height;
+	//var width=500, height = 400;
+
+	var donutChartSvg = d3.select("#donutChartDiv").append("svg").attr("id","donutChartSvg")
+	.attr("viewBox", '0 0 '+Math.min(width,height) +' '+Math.min(width,height))
+	.attr("preserveAspectRatio", "xMinYMin")
+	.append("g")	
+	.attr("transform",  "translate(" + Math.min(width,height) / 2 + "," + Math.min(width,height) / 2 + ")");
 
 	donutChartSvg.append("g")
 		.attr("class", "slices");
@@ -282,16 +378,18 @@ function drawDonutChart(inputDataArray, cityName){
 	var outerArc = d3.svg.arc()
 		.innerRadius(radius * 0.9)
 		.outerRadius(radius * 0.9);
-    
-	donutChartSvg.attr("transform", "translate(" + 0.55* width + "," + height / 2 + ")");
 
 	var key = function(d){ 
 		return d.data.label; 
 	};
 
+	var colorSchema = ["#00FF00", "#FFFF00", "#FFA500", "#FF0033", "#CC0000", "#660066"];
+	var qualityLevel = ["Excellent <50", "Good <100", "Light Pollution <150", "Moderate <200", 
+	"Severe <300", "Very Severe >300"];
+	
 	var color = d3.scale.ordinal()
-	.domain(["Excellent", "Good", "Light pollution", "Moderate Pollution", "Severe Pollution", "Very Severe Pollution"])
-	.range(["#00FF00", "#FFFF00", "#FFA500", "#FF0033", "#CC0000", "#660066"]);
+	.domain(qualityLevel)
+	.range(colorSchema);
 
 	function processData(){
 		var labels = color.domain();
@@ -311,12 +409,18 @@ function drawDonutChart(inputDataArray, cityName){
 
 	slice.enter()
 		.insert("path")
-		.style("fill", function(d) { 
+		.style("fill", function (d) { 
 			return color(d.data.label); 
 		})
-		.attr("class", "slice");
+		.attr("class", "slice")
+		.attr("value", function (d){
+			return 100*d.data.value;
+		})
+		.attr("label", function (d){
+			return d.data.label;
+		});
 
-	slice.transition().duration(1000)
+	slice.transition().duration(5000)
 		.attrTween("d", function(d) {
 			this._current = this._current || d;
 			var interpolate = d3.interpolate(this._current, d);
@@ -324,95 +428,95 @@ function drawDonutChart(inputDataArray, cityName){
 			return function(t) {
 				return arc(interpolate(t));
 			};
-		})
+		});
 
 	slice.exit().remove();
 
-	/* ------- TEXT LABELS -------*/
 
-	var text = donutChartSvg.select(".labels").selectAll("text")
-		.data(pie(data1), key);
+	slice.on("click", function (d){
+		
+		donutChartSvg.selectAll("rect.focus").remove();
+		donutChartSvg.selectAll("text.focus").remove();
 
-	text.enter()
-		.append("text")
-		.attr("dy", ".35em")
-		.attr("class","donutLabel")
-		.style("font-size","15px")
-		.text(function(d) {
-			return d.data.label;
-		});
+		var infoBoard = donutChartSvg.append("g")
+		.attr("x", 2*width/3)
+		.attr("y", height/10)
+		.attr("class", "infoBoard")
+		.attr("transform", "translate("+((Math.min(width,height) / 5))+",-"+(Math.min(width,height) / 2) +")");
+		
+
+		infoBoard.append("text")
+		// .attr("x", 20)
+		.attr("y", height/8)
+		.attr("class", "focus percentage")
+		.attr("transform","translate("+width/6.5+",0)")
+		.style("font-size","20px")
+		.text( (d.value*100).toFixed(1) +"%");
+
 	
-	function midAngle(d){
-		return d.startAngle + (d.endAngle - d.startAngle)/2;
-	}
 
-	text.transition().duration(1000)
-		.attrTween("transform", function(d) {
-			this._current = this._current || d;
-			var interpolate = d3.interpolate(this._current, d);
-			this._current = interpolate(0);
-			return function(t) {
-				var d2 = interpolate(t);
-				var pos = outerArc.centroid(d2);
-				pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
-				return "translate("+ pos +")";
-			};
-		})
-		.styleTween("text-anchor", function(d){
-			this._current = this._current || d;
-			var interpolate = d3.interpolate(this._current, d);
-			this._current = interpolate(0);
-			return function(t) {
-				var d2 = interpolate(t);
-				return midAngle(d2) < Math.PI ? "start":"end";
-			};
-		});
+	})
 
-	text.exit().remove();
-
-	/* ------- SLICE TO TEXT POLYLINES -------*/
-
-	var polyline = donutChartSvg.select("#donutChartDiv .lines").selectAll("#donutChartDiv polyline")
-		.data(pie(data1), key);
+	//draw legned for the donut char
+	var lengedIcons = [ {color:colorSchema[0], level:qualityLevel[0]},
+	{color:colorSchema[1], level:qualityLevel[1]}, {color:colorSchema[2], level:qualityLevel[2]},
+	{color:colorSchema[3], level:qualityLevel[3]}, {color:colorSchema[4], level:qualityLevel[4]},
+	{color:colorSchema[5], level:qualityLevel[5]} ];
 	
-	polyline.enter()
-		.append("polyline").attr("class","donutPolyLine");
+	var widthRect = width/10;
+	var heightRect = height/30;
+	donutChartSvg.selectAll("rect").data(lengedIcons).enter()
+	.append("rect")
+	.attr("x", widthRect/5)
+	.attr("width",widthRect)
+	.attr("y", function (d, i){
+		if(i>2){
+			return heightRect + i*1.5*heightRect+ height/1.55;
+		}else{
+			return heightRect + i*1.5*heightRect;
+		}
+		
+	})
+	.attr("height", heightRect)
+	.attr("fill", function (d){
+		return d.color;
+	})
+	.attr("transform", "translate(-"+Math.min(width,height) / 2+",-"+Math.min(width,height) / 2+")");
 
-	polyline.transition().duration(1000)
-		.attrTween("points", function(d){
-			this._current = this._current || d;
-			var interpolate = d3.interpolate(this._current, d);
-			this._current = interpolate(0);
-			return function(t) {
-				var d2 = interpolate(t);
-				var pos = outerArc.centroid(d2);
-				pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
-				return [arc.centroid(d2), outerArc.centroid(d2), pos];
-			};			
-		});
+	donutChartSvg.selectAll("text .labelForLegend").data(lengedIcons).enter()
+	.append("text")
+	.attr("x", 1.5*widthRect)
+	.attr("y", function (d, i){
+		if(i>2){
 
-	polyline.exit().remove();
+			return heightRect + 0.8*heightRect + i*1.5*heightRect+height/1.55;
+		}
+		else{
+			return heightRect + 0.8*heightRect + i*1.5*heightRect;
+		}
+		
+	})
+	.text(function (d){
+		return d.level;
+	})
+	.attr("transform", "translate(-"+Math.min(width,height) / 2+",-"+Math.min(width,height) / 2+")");
+	
 
+	
 	//add cityName to the middle of the circle
 	var cityNameInCenter = donutChartSvg.append("text").text(cityName).attr("id","cityNameInDonutChart");
 	var widthText = Number(document.getElementById("cityNameInDonutChart").getBoundingClientRect().width)/2;
-	cityNameInCenter.attr("transform","translate(-"+widthText+",0)");
+	
+	cityNameInCenter.attr("transform","translate(-"+widthText+",0)");	
 
-	var textArray = document.getElementsByClassName("donutLabel");
-	var lineArray = document.getElementsByClassName("donutPolyLine");	
-		
-	var keys = Object.keys(inputDataArray);
-	keys.forEach(function (d){
-		var index = keys.indexOf(d);
-		var value = inputDataArray[""+d];
-		if(value<0.01){
-			textArray[index].style = "display: none";
-			lineArray[index].style = "display: none";
-		}
-	})
+	var aqiLabel = donutChartSvg.append("text").text("Average AQI Level: ").attr("id","aqiLabel");
+	//var widthText = Number(document.getElementById("cityNameInDonutChart").getBoundingClientRect().width)/2;
+	aqiLabel.attr("transform","translate("+width/7+" ,"+ height/2.9+")");	//+
+	var aqiValueText = donutChartSvg.append("text").text(aqi).attr("id","aqiValueText");
+	aqiValueText.attr("transform","translate("+width/4+" ,"+ height/2.3+")");
 
-		
-		
+	var percentageLabel = donutChartSvg.append("text").text("% of Total Days:").attr("id","percentageLabel");
+	percentageLabel.attr("transform","translate("+width/4.5+",-"+height/2.2+")");
 
 }
 

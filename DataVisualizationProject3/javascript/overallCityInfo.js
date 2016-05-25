@@ -1,6 +1,11 @@
-var height3 = 500;
-var width3 = 900;
-var padding3 = 50;
+var svgWidthCompareMonth = document.getElementById("compareMonths").getBoundingClientRect().width,
+	svgHeightCompareMonth = document.getElementById("compareMonths").getBoundingClientRect().height;
+
+
+var width3 = 0.8*svgWidthCompareMonth,
+    height3 = 0.8*svgHeightCompareMonth;
+    //var paddingWidth = 0.13* width;
+    var padding3 = 0.1* Math.min(width3,height3);
 
 var compareMonths, compareDays, compareTimes;
 var compareMonthsInfo, compareDaysInfo, compareTimesInfo;
@@ -26,14 +31,18 @@ var citiesNames = ["Beijing", "Shenyang", "Chengdu", "Guangzhou", "Shanghai"];
 
 var group = ["Low", "Middle", "High"];
 
-var xScale, xScale2, xScale3;
-var yScale, yScale2, yScale3;
+var xScale1, xScale2, xScale3;
+var yScale1, yScale2, yScale3;
 
 var groupColor = ["green", "orange", "red"]; // Color of 3 groups
 
 var citiesColor = ["blue", "orange", "grey", "green", "red"]; // Color of 5 cities
 
-var svgMonth = d3.select("#compareMonths").append("svg").attr("height", height3).attr("width", width3);
+var svgMonth = d3.select("#compareMonths").append("svg")
+//.attr("height", height3).attr("width", width3)
+	.attr("id","compareMonthsSvg")
+	.attr('viewBox','0 0 '+Math.min(width3,height3) +' '+Math.min(width3,height3) )
+    .attr('preserveAspectRatio','xMinYMin');
 
 d3.csv("data/MonthlyDataWithBands.csv", function (error, data) {
 	compareMonthsInfo = data;
@@ -65,23 +74,25 @@ d3.csv("data/MonthlyDataWithBands.csv", function (error, data) {
 		});
 	}
 
-	xScale = d3.scale.linear().domain([1, 12]).range([padding3, width3 - padding3]);
-	yScale = d3.scale.linear().domain([0, d3.max(checkedGroups, function (d) { return d.AQI; })]).range([height3 - padding3, padding3]);
+	xScale1 = d3.scale.linear().domain([1, 12]).range([padding3, width3 - padding3]);
+	yScale1 = d3.scale.linear().domain([0, d3.max(checkedGroups, function (d) { return d.AQI; })]).range([height3 - padding3, padding3]);
 
-	var xAxis = d3.svg.axis().scale(xScale).ticks(12);
-	svgMonth.append("g").attr("class", "axis").attr("transform", "translate(0, " + (height3 - padding3) + ")").call(xAxis);
+	var xAxis = d3.svg.axis().scale(xScale1).ticks(12);
+	svgMonth.append("g").attr("class", "axis")
+	.attr("transform", "translate("+ 0.5*padding3 +"," + (height3 - 1.2*padding3) + ")")
+	.call(xAxis);
 
-	var yAxis = d3.svg.axis().scale(yScale).orient("left");
-	svgMonth.append("g").attr("class", "axis").attr("transform", "translate(" + padding3	 + ", 0)").call(yAxis);
+	var yAxis = d3.svg.axis().scale(yScale1).orient("left");
+	svgMonth.append("g").attr("class", "axis").attr("transform", "translate(" + 1.5*padding3 + ",-"+ 0.2*padding3+")").call(yAxis);
 
 	svgMonth.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (width3 / 2) + ", " + (height3 - (padding3 / 4)) + ")")
+    .attr("transform", "translate(" + (width3 / 2) + ", " + (height3-5)+ ")")
     .text("Month");
 
     svgMonth.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (padding3 / 4) + ", " + (height3 / 2) + ") rotate(-90)")
+    .attr("transform", "translate(" + (padding3 / 3) + ", " + (height3 / 2) + ") rotate(-90)")
     .text("AQI");
 
     for (var i = 0; i < 5; i++) {
@@ -91,7 +102,10 @@ d3.csv("data/MonthlyDataWithBands.csv", function (error, data) {
     }
 });
 
-var svgDays = d3.select("#compareDays").append("svg").attr("height", height3).attr("width", width3);
+var svgDays = d3.select("#compareDays").append("svg")
+	.attr("id","compareDaysSvg")
+	.attr('viewBox','0 0 '+ Math.min(width3, height3) +' '+Math.min(width3, height3) )
+    .attr('preserveAspectRatio','xMinYMin');
 
 d3.csv("data/SegmentedByDaysPollution.csv", function (error, data) {
 	compareDaysInfo = data;
@@ -111,19 +125,23 @@ d3.csv("data/SegmentedByDaysPollution.csv", function (error, data) {
 	yScale2 = d3.scale.linear().domain([d3.min(checkedGroups2, function (d) { return d.AQI; }), d3.max(checkedGroups2, function (d) { return d.AQI; })]).range([height3 - padding3, padding3]);
 
 	var xAxis2 = d3.svg.axis().scale(xScale2).ticks(7);
-	svgDays.append("g").attr("class", "axis").attr("transform", "translate(0, " + (height3 - padding3) + ")").call(xAxis2);
+	svgDays.append("g").attr("class", "axis")
+	.attr("transform", "translate("+0.5*padding3+ "," + (height3-1.5*padding3) + ")")
+	.call(xAxis2);
 
 	var yAxis2 = d3.svg.axis().scale(yScale2).orient("left");
-	svgDays.append("g").attr("class", "axis").attr("transform", "translate(" + padding3 + ", 0)").call(yAxis2);
+	svgDays.append("g").attr("class", "axis")
+	.attr("transform", "translate(" + 1.5*padding3 + ",-"+0.5*padding3+")")
+	.call(yAxis2);
 
 	svgDays.append("text")
     .style("text-anchor", "middle")
     .attr("transform", "translate(" + (width3 / 2) + ", " + (height3 - (padding3 / 4)) + ")")
-    .text("Days of a Week");
+    .text("Day of the Week");
 
     svgDays.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (padding3 / 4) + ", " + (height3 / 2) + ") rotate(-90)")
+    .attr("transform", "translate(" + (padding3 / 2) + ", " + (height3 / 2) + ") rotate(-90)")
     .text("AQI");
 
     for (var i = 0; i < 5; i++) {
@@ -147,7 +165,9 @@ d3.csv("data/SegmentedByDaysPollution.csv", function (error, data) {
     }
 });
 
-var svgTimes = d3.select("#compareTimes").append("svg").attr("height", height3).attr("width", width3);
+var svgTimes = d3.select("#compareTimes").append("svg").attr("id","compareTimesSvg")
+	.attr('viewBox','0 0 '+ Math.min(width3, height3) +' '+Math.min(width3, height3) )
+    .attr('preserveAspectRatio','xMinYMin');
 
 d3.csv("data/timeComparison.csv", function (error, data) {
 	compareTimesInfo = data;
@@ -160,23 +180,23 @@ d3.csv("data/timeComparison.csv", function (error, data) {
 	})
 	d3.select(check3).selectAll("input").property("checked", true);
 
-	xScale3 = d3.scale.linear().domain([0, 23]).range([padding3, width3 - padding3]);
+	xScale3 = d3.scale.linear().domain([0, 24]).range([padding3, width3 - padding3]);
 	yScale3 = d3.scale.linear().domain([0, d3.max(compareTimes, function (d) { return d.quality; })]).range([height3 - padding3, padding3]);
 
-	var xAxis3 = d3.svg.axis().scale(xScale3).ticks(24);
-	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(0, " + (height3 - padding3) + ")").call(xAxis3);
+	var xAxis3 = d3.svg.axis().scale(xScale3);
+	svgTimes.append("g").attr("class", "axis").attr("transform", "translate("+0.5*padding3+"," + (height3 - 1.5*padding3) + ")").call(xAxis3);
 
 	var yAxis3 = d3.svg.axis().scale(yScale3).orient("left");
-	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(" + padding3 + ", 0)").call(yAxis3);
+	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(" + 1.5*padding3 + ",-"+0.5*padding3+")").call(yAxis3);
 
 	svgTimes.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (width3 / 2) + ", " + (height3 - (padding3 / 4)) + ")")
-    .text("Times of a Day");
+    .attr("transform", "translate(" + (width3 / 2) + ", " + (height3 - (padding3 / 3)) + ")")
+    .text("Time by the Hour");
 
     svgTimes.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (padding3 / 4) + ", " + (height3 / 2) + ") rotate(-90)")
+    .attr("transform", "translate(" + (padding3/2) + ", " + (height3 / 2) + ") rotate(-90)")
     .text("PM2.5");
 
 	for (var i = 0; i < 5; i++) {
@@ -192,27 +212,9 @@ d3.csv("data/timeComparison.csv", function (error, data) {
 
 d3.select(check).selectAll("input").on("change", function () {
 	updateChecked(this.id, this.checked);
-	d3.select("#compareMonths").selectAll("path").remove();
-	d3.select("#compareMonths").selectAll("line").remove();
-	d3.select("#compareMonths").selectAll("text").remove();
+	d3.select("#compareMonths").selectAll("path.line").remove();
 
 	updateScale();
-
-	var xAxis = d3.svg.axis().scale(xScale).ticks(12);
-	svg.append("g").attr("class", "axis").attr("transform", "translate(0, " + (height3 - padding3) + ")").call(xAxis);
-
-	var yAxis = d3.svg.axis().scale(yScale).orient("left");
-	svg.append("g").attr("class", "axis").attr("transform", "translate(" + padding3 + ", 0)").call(yAxis);
-
-	svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (width3 / 2) + ", " + (height3 - (padding3 / 4)) + ")")
-    .text("Month");
-
-    svg.append("text")
-    .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (padding3 / 4) + ", " + (height3 / 2) + ") rotate(-90)")
-    .text("AQI");
 
 	for (var i = 0; i < 3; i++) {
 		if (checked[i] == 1) {
@@ -293,14 +295,16 @@ d3.select(check3).selectAll("input").on("change", function () {
 
     svgTimes.append("text")
     .style("text-anchor", "middle")
-    .attr("transform", "translate(" + (padding3 / 4) + ", " + (height3 / 2) + ") rotate(-90)")
+    .attr("transform", "translate(" + (padding3/2) + ", " + (height3 / 2) + ") rotate(-90)")
     .text("PM2.5");
 
-    var xAxis3 = d3.svg.axis().scale(xScale3).ticks(24);
-	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(0, " + (height3 - padding3) + ")").call(xAxis3);
+    var xAxis3 = d3.svg.axis().scale(xScale3);
+	svgTimes.append("g").attr("class", "axis")
+	.attr("transform", "translate("+0.5*padding3+"," + (height3 - 1.5*padding3) + ")").call(xAxis3);
 
-	var yAxis3 = d3.svg.axis().scale(yScale3).orient("left");
-	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(" + padding3 + ", 0)").call(yAxis3);
+	var yAxis3 = d3.svg.axis()
+	.scale(yScale3).orient("left");
+	svgTimes.append("g").attr("class", "axis").attr("transform", "translate(" + 1.5*padding3 + ",-"+0.5*padding3+")").call(yAxis3);
 
 	for (var i = 0; i < 5; i++) {
 		if (checked3[i] == 1) {
@@ -355,8 +359,8 @@ var updateScale = function () {
 		}
 	}
 	if (checkedGroups != null) {
-		xScale = d3.scale.linear().domain([1, 12]).range([padding3, width3 - padding3]);
-		yScale = d3.scale.linear().domain([0, d3.max(checkedGroups, function (d) { return d.AQI; })]).range([height3 - padding3, padding3]);
+		xScale1 = d3.scale.linear().domain([1, 12]).range([padding3, width3 - padding3]);
+		yScale1 = d3.scale.linear().domain([0, d3.max(checkedGroups, function (d) { return d.AQI; })]).range([height3 - padding3, padding3]);
 	}
 }
 
@@ -379,11 +383,13 @@ var drawLine1 = function (data, i, color) {
 	console.log("data for drawLine1 is:");
 	console.log(data);
 	var line = d3.svg.line()
-	.x(function (d) { return xScale(d.month); })
-	.y(function (d) { return yScale(d.AQI); });
-	var path = svgMonth.append("path").attr("class", "line").attr("d", line(data)).style("stroke", color[i]);
-	console.log("path is :");
-	console.log(path);
+	.x(function (d) { return xScale1(d.month); })
+	.y(function (d) { return yScale1(d.AQI); });
+	var path = svgMonth.append("path").attr("class", "line")
+	.attr("d", line(data))
+	.attr("transform", "translate("+0.5*padding3+",0)")
+	.style("stroke", color[i]);
+
 	var totalLength = path.node().getTotalLength();
 
 	// Animation
@@ -400,7 +406,11 @@ var drawLine2 = function (data, i, color) {
 	var line = d3.svg.line()
 	.x(function (d) { return xScale2(d.day); })
 	.y(function (d) { return yScale2(d.AQI); });
-	var path = svgDays.append("path").attr("class", "line").attr("d", line(data)).style("stroke", color[i]);
+	var path = svgDays.append("path")
+		.attr("class", "line")
+		.attr("d", line(data))
+		.attr("transform", "translate("+0.5*padding3+",-"+0.5*padding3+")")
+		.style("stroke", color[i]);
 	var totalLength = path.node().getTotalLength();
 	// Animation
 	path
@@ -416,7 +426,10 @@ var drawLine3 = function (data, i, color) {
 	var line = d3.svg.line()
 	.x(function (d) { return xScale3(d.time); })
 	.y(function (d) { return yScale3(d.quality); });
-	var path = svgTimes.append("path").attr("class", "line").attr("d", line(data)).style("stroke", color[i]);
+	var path = svgTimes.append("path").attr("class", "line")
+		.attr("d", line(data))
+		.attr("transform","translate("+0.5*padding3+",-"+0.5*padding3+")")
+		.style("stroke", color[i]);
 	var totalLength = path.node().getTotalLength();
 	// Animation
 	path
